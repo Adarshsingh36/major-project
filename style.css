@@ -31,10 +31,13 @@ body{
     outline: none;
 }
 .P{
-    background: #4a4a53;
+    background-color: #4a4a53;
     COLOR:white;
     border:1px solid #eee;
     border-radius:5px;
+    display:flex;
+    justify-content:center;
+    text-align:center;
     
 }
 .input-container button {
