@@ -28,7 +28,6 @@ async function getCityWeather() {
         if (data && data.length > 0) {
             const { lat, lon } = data[0];
             getWeatherData(lat, lon);
-            
         } else {
             alert(`Could not find coordinates for ${cityName}`);
         }
@@ -37,8 +36,21 @@ async function getCityWeather() {
         alert('An error occurred while fetching the data.');
     }
 }
-const lati=lat;
-const longi=longi;
+
+function getWeatherData(latitude, longitude) {
+    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=${API_KEY}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            localStorage.setItem('apiData', JSON.stringify(data));
+            showWeatherData(data);
+        })
+        .catch(error => {
+            console.error('Error fetching weather data:', error);
+            alert('Error fetching weather data');
+        });
+}
+
 
 
 setInterval(() => {
@@ -57,66 +69,21 @@ setInterval(() => {
 
 }, 1000);
 
-function handleWeatherRequest() {
-    const cityName = document.getElementById('cityInput').value.trim();
-    if (cityName) {
-        getCityWeather(cityName);
-    } else {
-        getLocationWeather();
-    }
-}
-
-async function getCityWeather(cityName) {
-    const apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${API_KEY}`;
-
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        if (data && data.length > 0) {
-            const { lat, lon } = data[0];
-            getWeatherData(lat, lon);
-        } else {
-            alert(`Could not find coordinates for ${cityName}`);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while fetching the data.');
-    }
-}
-
-function getLocationWeather() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                getWeatherData(latitude, longitude);
-            },
-            (error) => {
-                console.error("Error getting location:", error);
-                alert("Unable to retrieve your location. Please enter a city name.");
-            }
-        );
-    } else {
-        alert("Geolocation is not supported by your browser. Please enter a city name.");
-    }
-}
-
 getWeatherData()
-function getWeatherData(latitude, longitude) {
-    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=${API_KEY}`)
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            localStorage.setItem('apiData', JSON.stringify(data));
-            showWeatherData(data);
-        })
-        .catch(error => {
-            console.error('Error fetching weather data:', error);
-            alert('Error fetching weather data');
-        });
-}
+function getWeatherData () {
+    navigator.geolocation.getCurrentPosition((success) => {
 
+        let {latitude, longitude } = success.coords;
+
+        fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=${API_KEY}`).then(res => res.json()).then(data => {
+
+        console.log(data);
+        localStorage.setItem('apiData', JSON.stringify(data));
+        showWeatherData(data);
+        })
+
+    })
+}
 
 function showWeatherData (data){
     let {humidity, pressure, sunrise, sunset, wind_speed} = data.current;
